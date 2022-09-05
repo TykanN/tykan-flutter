@@ -77,11 +77,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     final refreshToken = resp.data[MyKey.refreshToken];
                     final accessToken = resp.data[MyKey.accessToken];
 
-                    await storage.write(key: MyKey.refreshToken, value: refreshToken);
-                    await storage.write(key: MyKey.accessToken, value: accessToken);
+                    await storage.write(
+                        key: MyKey.refreshToken, value: refreshToken);
+                    await storage.write(
+                        key: MyKey.accessToken, value: accessToken);
 
                     if (mounted) {
-                      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RootTab()));
+                      Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(builder: (_) => const RootTab()),
+                          (route) => false);
                     }
                   },
                   style: ElevatedButton.styleFrom(
