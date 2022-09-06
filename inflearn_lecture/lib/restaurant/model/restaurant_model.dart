@@ -1,6 +1,9 @@
 import 'dart:convert';
-
 import 'package:inflearn_lecture/common/const/data.dart';
+import 'package:inflearn_lecture/common/utils/data_utils.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+part 'restaurant_model.g.dart';
 
 enum RestaurantPriceRange {
   expensive,
@@ -8,9 +11,13 @@ enum RestaurantPriceRange {
   cheap,
 }
 
+@JsonSerializable()
 class RestaurantModel {
   final String id;
   final String name;
+  @JsonKey(
+    fromJson: DataUtils.pathToUrl,
+  )
   final String thumbUrl;
   final List<String> tags;
   final RestaurantPriceRange priceRange;
@@ -31,36 +38,21 @@ class RestaurantModel {
     required this.deliveryFee,
   });
 
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'name': name,
-      'thumbUrl': thumbUrl,
-      'tags': tags,
-      'priceRange': priceRange.name,
-      'ratings': ratings,
-      'ratingsCount': ratingsCount,
-      'deliveryTime': deliveryTime,
-      'deliveryFee': deliveryFee,
-    };
-  }
+  Map<String, dynamic> toJson() => _$RestaurantModelToJson(this);
 
-  factory RestaurantModel.fromMap(Map<String, dynamic> map) {
-    return RestaurantModel(
-      id: map['id'],
-      name: map['name'],
-      thumbUrl: '$host${map['thumbUrl']}',
-      tags: List<String>.from(map['tags']),
-      priceRange: RestaurantPriceRange.values
-          .firstWhere((e) => e.name == map['priceRange']),
-      ratings: map['ratings'],
-      ratingsCount: map['ratingsCount'],
-      deliveryTime: map['deliveryTime'],
-      deliveryFee: map['deliveryFee'],
-    );
-  }
+  factory RestaurantModel.fromJson(Map<String, dynamic> json) => _$RestaurantModelFromJson(json);
 
-  String toJson() => json.encode(toMap());
-  factory RestaurantModel.fromJson(String source) =>
-      RestaurantModel.fromMap(json.decode(source));
+  // factory RestaurantModel.fromMap(Map<String, dynamic> map) {
+  //   return RestaurantModel(
+  //     id: map['id'],
+  //     name: map['name'],
+  //     thumbUrl: '$host${map['thumbUrl']}',
+  //     tags: List<String>.from(map['tags']),
+  //     priceRange: RestaurantPriceRange.values.firstWhere((e) => e.name == map['priceRange']),
+  //     ratings: map['ratings'],
+  //     ratingsCount: map['ratingsCount'],
+  //     deliveryTime: map['deliveryTime'],
+  //     deliveryFee: map['deliveryFee'],
+  //   );
+  // }
 }
