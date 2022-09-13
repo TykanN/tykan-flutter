@@ -1,6 +1,15 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:inflearn_lecture/common/const/data.dart';
+import 'package:inflearn_lecture/common/secure_storage/secure_storage.dart';
+
+final dioProvider = Provider<Dio>((ref) {
+  final dio = Dio();
+  final storage = ref.watch(secureStorageProvider);
+  dio.interceptors.add(CustomInterceptor(tokenStorage: storage));
+  return dio;
+});
 
 class CustomInterceptor extends Interceptor {
   final FlutterSecureStorage tokenStorage;
@@ -16,7 +25,7 @@ class CustomInterceptor extends Interceptor {
       // 헤더 삭제
       options.headers.remove(MyKey.accessToken);
       // 실제 토큰으로 교체
-      final token = await storage.read(key: MyKey.accessToken);
+      final token = await tokenStorage.read(key: MyKey.accessToken);
       options.headers.addAll({'authorization': 'Bearer $token'});
     }
 
@@ -24,7 +33,7 @@ class CustomInterceptor extends Interceptor {
       // 헤더 삭제
       options.headers.remove(MyKey.refreshToken);
       // 실제 토큰으로 교체
-      final token = await storage.read(key: MyKey.refreshToken);
+      final token = await tokenStorage.read(key: MyKey.refreshToken);
       options.headers.addAll({'authorization': 'Bearer $token'});
     }
 
@@ -44,7 +53,7 @@ class CustomInterceptor extends Interceptor {
   void onError(DioError err, ErrorInterceptorHandler handler) async {
     print('[ERR] [${err.requestOptions.method}] ${err.requestOptions.uri}');
 
-    final refreshToken = await storage.read(key: MyKey.refreshToken);
+    final refreshToken = await tokenStorage.read(key: MyKey.refreshToken);
     // refreshToken이 아예 없을 때
     if (refreshToken == null) {
       return handler.reject(err);

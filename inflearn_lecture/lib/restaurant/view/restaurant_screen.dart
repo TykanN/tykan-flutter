@@ -1,38 +1,21 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:inflearn_lecture/common/const/data.dart';
-import 'package:inflearn_lecture/common/dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:inflearn_lecture/common/model/cursor_pagination_model.dart';
 import 'package:inflearn_lecture/restaurant/component/restaurant_card.dart';
 import 'package:inflearn_lecture/restaurant/model/restaurant_model.dart';
 import 'package:inflearn_lecture/restaurant/repository/restaurant_repository.dart';
 import 'package:inflearn_lecture/restaurant/view/restaurant_detail_screen.dart';
 
-class RestaurantScreen extends StatelessWidget {
+class RestaurantScreen extends ConsumerWidget {
   const RestaurantScreen({super.key});
 
-  Future<List<RestaurantModel>> paginateRestaurant() async {
-    final dio = Dio();
-
-    dio.interceptors.add(CustomInterceptor(tokenStorage: storage));
-
-    final repositroy = RestaurantRepository(dio, baseUrl: '$host/restaurant');
-
-    final resp = await repositroy.paginate();
-
-    // final accessToken = await storage.read(key: MyKey.accessToken);
-
-    // final resp = await dio.get('$host/restaurant', options: Options(headers: {'authorization': 'Bearer $accessToken'}));
-
-    return resp.data;
-  }
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: FutureBuilder<List<RestaurantModel>>(
-          future: paginateRestaurant(),
+        child: FutureBuilder<CursorPagination<RestaurantModel>>(
+          future: ref.watch(restaurantRepositoryProvider).paginate(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return const Center(
@@ -41,9 +24,9 @@ class RestaurantScreen extends StatelessWidget {
             }
             return ListView.separated(
               separatorBuilder: (_, index) => const SizedBox(height: 16.0),
-              itemCount: snapshot.data!.length,
+              itemCount: snapshot.data!.data.length,
               itemBuilder: (_, index) {
-                final item = snapshot.data![index];
+                final item = snapshot.data!.data[index];
 
                 return GestureDetector(
                   onTap: () {

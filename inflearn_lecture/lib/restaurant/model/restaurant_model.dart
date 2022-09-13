@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'package:inflearn_lecture/common/const/data.dart';
 import 'package:inflearn_lecture/common/utils/data_utils.dart';
 import 'package:json_annotation/json_annotation.dart';
 

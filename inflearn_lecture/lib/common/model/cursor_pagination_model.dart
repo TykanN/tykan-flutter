@@ -1,8 +1,4 @@
-import 'dart:convert';
-
 import 'package:json_annotation/json_annotation.dart';
-
-import 'package:inflearn_lecture/restaurant/model/restaurant_model.dart';
 
 part 'cursor_pagination_model.g.dart';
 
