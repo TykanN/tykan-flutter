@@ -2,21 +2,22 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'cursor_pagination_model.g.dart';
 
-abstract class CursorPaginationBase {}
+abstract class CursorPaginationBase<T> {}
 
-class CursorPaginationError extends CursorPaginationBase {
+class CursorPaginationError<T> extends CursorPaginationBase<T> {
   final String message;
   CursorPaginationError({
     required this.message,
   });
 }
 
-class CursorPaginationLoading extends CursorPaginationBase {}
+class CursorPaginationLoading<T> extends CursorPaginationBase<T> {}
 
 @JsonSerializable(
+  // 제네릭 타입에 대한 Serialize를 위해 정의
   genericArgumentFactories: true,
 )
-class CursorPagination<T> extends CursorPaginationBase {
+class CursorPagination<T> extends CursorPaginationBase<T> {
   final CursorPaginationMeta meta;
   final List<T> data;
 

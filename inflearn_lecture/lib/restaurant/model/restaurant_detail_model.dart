@@ -1,3 +1,4 @@
+import 'package:inflearn_lecture/common/model/model_with_id.dart';
 import 'package:inflearn_lecture/common/utils/data_utils.dart';
 
 import 'package:inflearn_lecture/restaurant/model/restaurant_model.dart';
@@ -52,7 +53,8 @@ class RestaurantDetailModel extends RestaurantModel {
 }
 
 @JsonSerializable()
-class RestaurantProductModel {
+class RestaurantProductModel implements IModelWithId {
+  @override
   final String id;
   final String name;
   @JsonKey(

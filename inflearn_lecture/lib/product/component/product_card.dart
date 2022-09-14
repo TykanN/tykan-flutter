@@ -1,10 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:inflearn_lecture/common/const/colors.dart';
+import 'package:inflearn_lecture/product/model/product_model.dart';
 import 'package:inflearn_lecture/restaurant/model/restaurant_detail_model.dart';
 
 class ProductCard extends StatelessWidget {
-  final RestaurantProductModel product;
-  const ProductCard({super.key, required this.product});
+  final String imgUrl;
+  final String name;
+  final String detail;
+  final int price;
+  final String id;
+
+  const ProductCard({
+    super.key,
+    required this.imgUrl,
+    required this.name,
+    required this.detail,
+    required this.price,
+    required this.id,
+  });
+
+  factory ProductCard.fromProductModel({required ProductModel model}) {
+    return ProductCard(
+      imgUrl: model.imgUrl,
+      name: model.name,
+      detail: model.detail,
+      price: model.price,
+      id: model.id,
+    );
+  }
+
+  factory ProductCard.fromRestaurantProductModel({required RestaurantProductModel model}) {
+    return ProductCard(
+      imgUrl: model.imgUrl,
+      name: model.name,
+      detail: model.detail,
+      price: model.price,
+      id: model.id,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +47,7 @@ class ProductCard extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(8.0),
             child: Image.network(
-              product.imgUrl,
+              imgUrl,
               width: 110,
               height: 110,
               fit: BoxFit.cover,
@@ -27,14 +60,14 @@ class ProductCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  product.name,
+                  name,
                   style: const TextStyle(
                     fontSize: 18.0,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 Text(
-                  product.detail,
+                  detail,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
@@ -43,7 +76,7 @@ class ProductCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '₩${product.price}',
+                  '₩$price',
                   textAlign: TextAlign.right,
                   style: const TextStyle(
                     color: MyColor.primary,
