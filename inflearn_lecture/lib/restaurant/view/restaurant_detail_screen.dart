@@ -5,9 +5,10 @@ import 'package:inflearn_lecture/product/component/product_card.dart';
 import 'package:inflearn_lecture/restaurant/component/restaurant_card.dart';
 import 'package:inflearn_lecture/restaurant/model/restaurant_detail_model.dart';
 import 'package:inflearn_lecture/restaurant/model/restaurant_model.dart';
-import 'package:inflearn_lecture/restaurant/repository/restaurant_repository.dart';
+import 'package:inflearn_lecture/restaurant/provider/restaurant_provider.dart';
+import 'package:skeletons/skeletons.dart';
 
-class RestaurantDetailScreen extends ConsumerWidget {
+class RestaurantDetailScreen extends ConsumerStatefulWidget {
   final RestaurantModel restaurantModel;
   final String id;
 
@@ -18,27 +19,58 @@ class RestaurantDetailScreen extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return DefaultLayout(
-      title: '불타는 떡볶이',
-      child: FutureBuilder<RestaurantDetailModel>(
-        future: ref.watch(restaurantRepositoryProvider).getRestaurantDetail(rid: id),
-        builder: (_, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          final item = snapshot.data!;
+  ConsumerState<RestaurantDetailScreen> createState() => _RestaurantDetailScreenState();
+}
 
-          return CustomScrollView(
-            slivers: [
-              _renderTop(model: item),
-              _renderLabel(),
-              _renderProduct(item.products),
-            ],
-          );
-        },
+class _RestaurantDetailScreenState extends ConsumerState<RestaurantDetailScreen> {
+  @override
+  void initState() {
+    super.initState();
+    ref.read(restaurantProvider.notifier).getDetail(id: widget.id);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(restaurantDetailProvider(widget.id));
+
+    if (state == null) {
+      return const DefaultLayout(
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+    return DefaultLayout(
+      title: widget.restaurantModel.name,
+      child: CustomScrollView(
+        slivers: [
+          _renderTop(model: state),
+          if (state is! RestaurantDetailModel) _renderLoading(),
+          if (state is RestaurantDetailModel) _renderLabel(),
+          if (state is RestaurantDetailModel) _renderProduct(state.products),
+        ],
+      ),
+    );
+  }
+
+  Widget _renderLoading() {
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+      sliver: SliverList(
+        delegate: SliverChildListDelegate(
+          List.generate(
+            3,
+            (index) => Padding(
+              padding: const EdgeInsets.only(bottom: 32.0),
+              child: SkeletonParagraph(
+                style: const SkeletonParagraphStyle(
+                  padding: EdgeInsets.zero,
+                  lines: 5,
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -77,7 +109,7 @@ class RestaurantDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _renderTop({required RestaurantDetailModel model}) {
+  Widget _renderTop({required RestaurantModel model}) {
     return SliverToBoxAdapter(
       child: RestaurantCard.fromModel(
         model: model,
