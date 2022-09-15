@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inflearn_lecture/common/model/cursor_pagination_model.dart';
 import 'package:inflearn_lecture/common/provider/pagination_provider.dart';
 import 'package:inflearn_lecture/restaurant/model/restaurant_model.dart';
-
+import 'package:collection/collection.dart';
 import 'package:inflearn_lecture/restaurant/repository/restaurant_repository.dart';
 
 final restaurantDetailProvider = Provider.family<RestaurantModel?, String>((ref, id) {
@@ -12,7 +12,7 @@ final restaurantDetailProvider = Provider.family<RestaurantModel?, String>((ref,
     return null;
   }
 
-  return state.data.firstWhere((element) => element.id == id);
+  return state.data.firstWhereOrNull((element) => element.id == id);
 });
 
 final restaurantProvider = StateNotifierProvider<RestaurantStateNotifier, CursorPaginationBase<RestaurantModel>>((ref) {
@@ -37,11 +37,21 @@ class RestaurantStateNotifier extends PaginationProvider<RestaurantModel, Restau
 
     final pState = state as CursorPagination<RestaurantModel>;
     final resp = await repository.getRestaurantDetail(rid: id);
-    state = pState.copyWith(
-        data: pState.data
-            .map<RestaurantModel>(
-              (e) => e.id == id ? resp : e,
-            )
-            .toList());
+
+    if (pState.data.where((e) => e.id == id).isEmpty) {
+      state = pState.copyWith(
+        data: [
+          ...pState.data,
+          resp,
+        ],
+      );
+    } else {
+      state = pState.copyWith(
+          data: pState.data
+              .map<RestaurantModel>(
+                (e) => e.id == id ? resp : e,
+              )
+              .toList());
+    }
   }
 }

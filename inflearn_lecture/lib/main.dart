@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:inflearn_lecture/common/view/splash_screen.dart';
+import 'package:inflearn_lecture/common/provider/go_router.dart';
 
 void main() {
   runApp(
@@ -10,17 +10,20 @@ void main() {
   );
 }
 
-class _App extends StatelessWidget {
+class _App extends ConsumerWidget {
   const _App({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(routerProvider);
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         fontFamily: 'NotoSans',
       ),
-      home: const SplashScreen(),
+      routeInformationProvider: router.routeInformationProvider,
+      routeInformationParser: router.routeInformationParser,
+      routerDelegate: router.routerDelegate,
     );
   }
 }

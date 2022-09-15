@@ -11,9 +11,11 @@ typedef PaginationWidgetBuilder<T extends IModelWithId> = Widget Function(BuildC
 class PaginationListView<T extends IModelWithId> extends ConsumerStatefulWidget {
   final StateNotifierProvider<PaginationProvider<T, IBasePaginationRepository<T>>, CursorPaginationBase<T>> provider;
   final PaginationWidgetBuilder<T> itemBuilder;
+  final String pageStorageKeyValue;
 
   const PaginationListView({
     super.key,
+    required this.pageStorageKeyValue,
     required this.provider,
     required this.itemBuilder,
   });
@@ -83,6 +85,7 @@ class _PaginationListViewState<U extends IModelWithId> extends ConsumerState<Pag
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: ListView.separated(
+        key: PageStorageKey<String>(widget.pageStorageKeyValue),
         controller: controller,
         separatorBuilder: (_, index) => const SizedBox(height: 16.0),
         itemCount: cp.data.length + 1,
