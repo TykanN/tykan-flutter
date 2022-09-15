@@ -3,6 +3,10 @@ import 'package:inflearn_lecture/product/model/product_model.dart';
 import 'package:inflearn_lecture/user/model/basket_item_model.dart';
 import 'package:collection/collection.dart';
 
+final basketProvider = StateNotifierProvider<BasketNotifier, List<BasketItemModel>>((ref) {
+  return BasketNotifier();
+});
+
 class BasketNotifier extends StateNotifier<List<BasketItemModel>> {
   BasketNotifier() : super([]);
 
