@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inflearn_lecture/common/view/root_tab.dart';
 import 'package:inflearn_lecture/common/view/splash_screen.dart';
+import 'package:inflearn_lecture/order/view/order_done_screen.dart';
+import 'package:inflearn_lecture/restaurant/view/basket_screen.dart';
 import 'package:inflearn_lecture/restaurant/view/restaurant_detail_screen.dart';
 import 'package:inflearn_lecture/user/model/user_model.dart';
 import 'package:inflearn_lecture/user/provider/user_me_provider.dart';
@@ -49,6 +51,16 @@ class AuthProvider extends ChangeNotifier {
               ),
             ),
           ],
+        ),
+        GoRoute(
+          path: '/basket',
+          name: BasketScreen.routeName,
+          builder: (_, __) => const BasketScreen(),
+        ),
+        GoRoute(
+          path: '/order-done',
+          name: OrderDoneScreen.routeName,
+          builder: (_, __) => const OrderDoneScreen(),
         ),
       ];
 

@@ -75,7 +75,7 @@ class BasketNotifier extends StateNotifier<List<BasketItemModel>> {
     if (existingProduct.count == 1 || isDelete) {
       state = state.where((e) => e.product.id != product.id).toList();
     } else {
-      state = state.map((e) => e.product.id == product.id ? e.copyWith(count: e.count + 1) : e).toList();
+      state = state.map((e) => e.product.id == product.id ? e.copyWith(count: e.count - 1) : e).toList();
     }
 
     await patchBasket();
