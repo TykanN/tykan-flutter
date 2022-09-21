@@ -74,7 +74,6 @@ class CustomInterceptor extends Interceptor {
     // 토큰 재발급 시도해서 재발급되면 다시 새로운 토큰 요청
     if (isStatus401 && !isPathRefresh) {
       final dio = Dio();
-      dio.interceptors.add(this);
       try {
         final resp = await dio.post(
           '$host/auth/token',
@@ -89,7 +88,9 @@ class CustomInterceptor extends Interceptor {
         options.headers.addAll({'authorization': 'Bearer $accessToken'});
         await tokenStorage.write(key: MyKey.accessToken, value: accessToken);
         // 요청 재전송
-        final response = await dio.fetch(options);
+        final reRequestDio = Dio();
+        reRequestDio.interceptors.add(this);
+        final response = await reRequestDio.fetch(options);
 
         return handler.resolve(response);
       } on DioError catch (e) {
@@ -97,7 +98,6 @@ class CustomInterceptor extends Interceptor {
         return handler.reject(e);
       }
     }
-
     super.onError(err, handler);
   }
 }

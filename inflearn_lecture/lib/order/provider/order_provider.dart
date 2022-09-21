@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:inflearn_lecture/common/model/cursor_pagination_model.dart';
+import 'package:inflearn_lecture/common/provider/pagination_provider.dart';
 import 'package:inflearn_lecture/order/model/post_order_body.dart';
 import 'package:uuid/uuid.dart';
 
@@ -6,19 +8,18 @@ import 'package:inflearn_lecture/order/model/order_model.dart';
 import 'package:inflearn_lecture/order/repository/order_repository.dart';
 import 'package:inflearn_lecture/user/provider/basket_provider.dart';
 
-final orderProvider = StateNotifierProvider<OrderNotifier, List<OrderModel>>((ref) {
+final orderProvider = StateNotifierProvider<OrderNotifier, CursorPaginationBase<OrderModel>>((ref) {
   final repo = ref.watch(orderRepositoryProvider);
   return OrderNotifier(ref: ref, repository: repo);
 });
 
-class OrderNotifier extends StateNotifier<List<OrderModel>> {
+class OrderNotifier extends PaginationProvider<OrderModel, OrderRepository> {
   final Ref ref;
-  final OrderRepository repository;
 
   OrderNotifier({
     required this.ref,
-    required this.repository,
-  }) : super([]);
+    required super.repository,
+  }) : super();
 
   Future<bool> postOrder() async {
     try {
@@ -26,7 +27,7 @@ class OrderNotifier extends StateNotifier<List<OrderModel>> {
       final id = uuid.v4();
       final basketState = ref.read(basketProvider);
 
-      final resp = await repository.postOrder(
+      await repository.postOrder(
         body: PostOrderBody(
           id: id,
           products: basketState.map((e) => PostOrderBodyProduct(productId: e.product.id, count: e.count)).toList(),
@@ -37,7 +38,6 @@ class OrderNotifier extends StateNotifier<List<OrderModel>> {
 
       return true;
     } catch (e) {
-      throw e;
       return false;
     }
   }

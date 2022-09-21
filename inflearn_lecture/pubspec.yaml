@@ -24,6 +24,7 @@ dependencies:
   skeletons: ^0.0.3
   badges: ^2.0.3
   uuid: ^3.0.6
+  debounce_throttle: ^2.0.0
 
 
 dev_dependencies:

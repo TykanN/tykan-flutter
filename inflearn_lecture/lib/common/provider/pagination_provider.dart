@@ -1,17 +1,43 @@
+import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:inflearn_lecture/common/model/cursor_pagination_model.dart';
 import 'package:inflearn_lecture/common/model/model_with_id.dart';
 import 'package:inflearn_lecture/common/model/pagination_params.dart';
 import 'package:inflearn_lecture/common/repository/base_pagination_repository.dart';
 
+class _PaginationInfo {
+  final int fetchCount;
+  // 추가로 데이터 더 가져오기
+  final bool fetchMore;
+  // 강제 재로딩
+  final bool forceRefetch;
+
+  _PaginationInfo({
+    this.fetchCount = 20,
+    this.fetchMore = false,
+    this.forceRefetch = false,
+  });
+}
+
 class PaginationProvider<T extends IModelWithId, R extends IBasePaginationRepository<T>>
     extends StateNotifier<CursorPaginationBase<T>> {
   final R repository;
+
+  final paginationThrottle = Throttle(
+    const Duration(seconds: 5),
+    initialValue: _PaginationInfo(),
+    checkEquality: false,
+  );
 
   PaginationProvider({
     required this.repository,
   }) : super(CursorPaginationLoading<T>()) {
     paginate();
+
+    paginationThrottle.values.listen((event) {
+      _throttlePagination(event);
+    });
   }
 
   Future<void> paginate({
@@ -21,6 +47,18 @@ class PaginationProvider<T extends IModelWithId, R extends IBasePaginationReposi
     // 강제 재로딩
     bool forceRefetch = false,
   }) async {
+    paginationThrottle.setValue(_PaginationInfo(
+      fetchCount: fetchCount,
+      fetchMore: fetchMore,
+      forceRefetch: forceRefetch,
+    ));
+  }
+
+  void _throttlePagination(_PaginationInfo info) async {
+    final fetchCount = info.fetchCount;
+    final fetchMore = info.fetchMore;
+    final forceRefetch = info.forceRefetch;
+
     try {
       // 1) CursorPagination - 정상 상태
       // 2) CursorPaginationLoading - 데이터 로딩 상태(캐시 없음)
@@ -80,7 +118,9 @@ class PaginationProvider<T extends IModelWithId, R extends IBasePaginationReposi
       } else {
         state = resp;
       }
-    } catch (e) {
+    } catch (e, stack) {
+      print(e);
+      print(stack);
       state = CursorPaginationError<T>(message: '데이터를 가져오지 못했습니다.');
     }
   }
